@@ -16,10 +16,8 @@ package com.epam.jira;
  * limitations under the License.
  */
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -30,10 +28,9 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Mojo(name = "test-management", defaultPhase = LifecyclePhase.COMPILE)
-public class TestManagementMojo extends AbstractMojo {
+@Mojo(name = "sample", defaultPhase = LifecyclePhase.COMPILE)
+public class UpdateConfigurationMojo extends AbstractMojo {
 
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -48,17 +45,6 @@ public class TestManagementMojo extends AbstractMojo {
 
         Object config = updateConfiguration(hasJunit, hasTestNG, surefirePlugin.getConfiguration());
         surefirePlugin.setConfiguration(config);
-
-        List<PluginExecution> executions = surefirePlugin.getExecutions();
-        for (PluginExecution execution : executions) {
-            if (execution.getId().equals("default-test")) {
-                getLog().info("Setting DEFAULT-TEST");
-                config = updateConfiguration(hasJunit, hasTestNG, execution.getConfiguration());
-                execution.setConfiguration(config);
-                getLog().info("Configuration:" + config);
-                break;
-            }
-        }
     }
 
     private boolean containsDependencyById(String artifactId) {
@@ -121,7 +107,6 @@ public class TestManagementMojo extends AbstractMojo {
 
             if (value != null && !value.isEmpty()) listeners.add(value);
             if (hasTestNG) listeners.add("com.epam.jira.testng.ExecutionListener");
-            if (hasJunit) listeners.add("com.epam.jira.junit.ExecutionListener");
 
             listenerProperty.getChild("value").setValue(String.join(",", listeners));
 
